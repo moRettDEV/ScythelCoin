@@ -56,7 +56,14 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Добавить</button>
             </form>
+            <!--Добавление категории-->
+            <div class="mb-3">
+                <label for="new-category" class="form-label">Новая категория:</label>
+                <input type="text" id="new-category" name="new-category" class="form-control">
+            </div>
+            <button type="button" id="add-category-btn" class="btn btn-secondary">Добавить категорию</button>
         </div>
+
 
         <!-- Просмотр трат -->
         <div id="view-expenses-page" class="d-none">
@@ -101,6 +108,62 @@
         viewExpensesPage.classList.remove('d-none');
         loadExpenses(); // Загрузить список трат
     });
+
+    // Загрузка категорий
+    function loadCategories() {
+        fetch('/api/categories')
+            .then(response => response.json())
+            .then(data => {
+                const select = document.getElementById('categories');
+                select.innerHTML = '';  // Очищаем текущий список категорий
+                data.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = category.name;
+                    select.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Ошибка загрузки категорий:', error);
+                alert('Ошибка загрузки категорий');
+            });
+    }
+
+    // Обработчик для добавления новой категории
+    document.getElementById('add-category-btn').addEventListener('click', function () {
+        const newCategory = document.getElementById('new-category').value;
+
+        if (!newCategory) {
+            alert('Введите название категории');
+            return;
+        }
+
+        fetch('/api/categories', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: newCategory })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Категория добавлена!');
+                    loadCategories();  // Перезагрузить список категорий
+                    document.getElementById('new-category').value = '';  // Очистить поле ввода
+                } else {
+                    alert('Ошибка при добавлении категории');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при добавлении категории:', error);
+                alert('Ошибка при добавлении категории');
+            });
+    });
+
+    // Загрузка категорий при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function () {
+        loadCategories();
+    });
+
 
     // Загрузка категорий в форму добавления траты
     fetch('/api/categories')
