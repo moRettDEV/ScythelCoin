@@ -1,18 +1,17 @@
-//expenseRoutes.js
-
 const express = require('express');
-const addCategory = require('../handlers/addCategory');
-const getCategories = require('../handlers/getCategories');
-const addExpense = require('../handlers/addExpense');
-const getExpensesByCategory = require('../handlers/getExpensesByCategory');
-const getAllExpenses = require('../handlers/getAllExpenses');
+const handlers = require('../handlers');  // Импортируем все хендлеры
 
 const router = express.Router();
 
-router.post('/categories', addCategory);
-router.get('/categories', getCategories);
-router.post('/expenses', addExpense);
-router.get('/category/:categoryId', getExpensesByCategory);
-router.get('/expenses', getAllExpenses);
+// Маршруты для категорий
+router.post('/categories', handlers.addCategory);
+router.get('/categories', handlers.getCategories);
+router.delete('/categories/:categoryId', handlers.deleteCategory); // Удаление категорий
+
+// Маршруты для трат
+router.post('/expenses', handlers.addExpense);
+router.get('/category/:categoryId', handlers.getExpensesByCategory);
+router.get('/expenses', handlers.getAllExpenses);
+router.delete('/expenses/:expenseId', handlers.deleteExpense); // Удаление трат
 
 module.exports = router;

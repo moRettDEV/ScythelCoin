@@ -69,6 +69,7 @@
                     <th>Сумма</th>
                     <th>Описание</th>
                     <th>Категории</th>
+                    <th>Действия</th>
                 </tr>
                 </thead>
                 <tbody id="expenses-list">
@@ -124,7 +125,7 @@
         const description = document.getElementById('description').value;
         const categories = Array.from(document.getElementById('categories').selectedOptions).map(option => option.value);
 
-        fetch('/api', {
+        fetch('/api/expenses', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, amount, description, categories })
@@ -153,13 +154,17 @@
                         `<span class="badge bg-primary me-1">${category.name}</span>`
                     ).join('');
 
+                    // Кнопка для удаления траты
+                    const deleteButton = `<button class="btn btn-danger btn-sm" onclick="deleteExpense(${expense.id})">Удалить</button>`;
+
                     row.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td>${expense.name}</td>
-                        <td>${expense.amount}</td>
-                        <td>${expense.description || '—'}</td>
-                        <td>${categoriesList}</td>
-                    `;
+                    <td>${index + 1}</td>
+                    <td>${expense.name}</td>
+                    <td>${expense.amount}</td>
+                    <td>${expense.description || '—'}</td>
+                    <td>${categoriesList}</td>
+                    <td>${deleteButton}</td>
+                `;
                     expensesList.appendChild(row);
 
                     // Подсчет суммы по категориям
@@ -180,6 +185,28 @@
                 }
             })
             .catch(error => console.error('Ошибка загрузки трат:', error));
+    }
+
+    // Функция для удаления траты
+    function deleteExpense(expenseId) {
+        if (confirm('Вы уверены, что хотите удалить эту трату?')) {
+            fetch(`/api/expenses/${expenseId}`, {
+                method: 'DELETE',
+            })
+                .then(response => response.json())  // Преобразуем ответ в JSON
+                .then(data => {
+                    if (data.success) {  // Проверяем success
+                        alert('Трата удалена');
+                        loadExpenses();  // Перезагружаем список трат
+                    } else {
+                        alert('Ошибка при удалении траты');
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при удалении:', error); // Логируем ошибку
+                    alert('Ошибка при удалении траты');
+                });
+        }
     }
 </script>
 </body>
